@@ -101,12 +101,6 @@ RUN if [ "${USER_UID}" = 0 ] || [ "${USER_GID}" = 0 ]; then echo "USER_UID/USER_
     && echo "${USERNAME} ALL=(root) NOPASSWD:ALL" > "/etc/sudoers.d/${USERNAME}" \
     && chmod 0440 "/etc/sudoers.d/${USERNAME}"
 
-# Build context = this folder only (Dockerfile, ros_env.sh, entrypoint.sh, rebot-selftest.sh).
-COPY --chmod=0755 entrypoint.sh /usr/local/bin/entrypoint.sh
-COPY --chmod=0644 ros_env.sh /etc/profile.d/ros_env.sh
-COPY --chmod=0755 rebot-selftest.sh /usr/local/bin/rebot-selftest
-RUN echo 'source /etc/profile.d/ros_env.sh' >> "/home/${USERNAME}/.bashrc"
-
 # ROS 2: default domain 0, traffic kept inside the container; Seeed's Fast DDS workaround.
 ENV ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST \
     FASTDDS_BUILTIN_TRANSPORTS=UDPv4
