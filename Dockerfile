@@ -84,10 +84,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends  \
     python3-rosdep \
     python3-colcon-common-extensions 
 
-# Init rosdep and update it
-RUN rosdep init && rosdep update
-
-
 # --- Pinned upstream sources (update deliberately, then rebuild) -------------
 # Seeed ROS 2 workspace (v0.3.0, main @ 2026-11-06)
 ARG REBOT_ROS2_REPO=https://github.com/Seeed-Projects/reBotArmController_ROS2.git
