@@ -76,9 +76,6 @@ COPY ./resources/ros_requirements /tmp
 RUN cat /tmp/ros_requirements | DEBIAN_FRONTEND=noninteractive xargs -I {} apt-get  install --yes --no-install-recommends ros-${ROS_DISTRO}-{}
 RUN rm /tmp/ros_requirements
 
-# Source ROS setup script
-RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> /root/.bashrc
-
 # Install recommended ROS2 packages
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends  \
     python3-rosdep \
@@ -165,6 +162,12 @@ RUN if [ "${USER_UID}" = 0 ] || [ "${USER_GID}" = 0 ]; then echo "USER_UID/USER_
     && usermod -aG dialout,video "${USERNAME}" \
     && echo "${USERNAME} ALL=(root) NOPASSWD:ALL" > "/etc/sudoers.d/${USERNAME}" \
     && chmod 0440 "/etc/sudoers.d/${USERNAME}"
+
+# ROS 2 environment for every new shell (all users, root included).
+# /etc/profile.d covers login shells (bash -l); the /etc/bash.bashrc line covers
+# interactive non-login shells (bash -i, new terminals). Both run the same guarded file.
+COPY ./resources/ros_env.sh /etc/profile.d/ros_env.sh
+RUN printf '\n# Load ROS 2 for interactive non-login shells\nif [ -f /etc/profile.d/ros_env.sh ]; then . /etc/profile.d/ros_env.sh; fi\n' >> /etc/bash.bashrc
 
 # ROS 2: default domain 0, traffic kept inside the container; Seeed's Fast DDS workaround.
 ENV ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST \
